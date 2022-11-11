@@ -1,53 +1,104 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fvan-wij <fvan-wij@student.codam.nl>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/11/10 16:43:21 by fvan-wij          #+#    #+#             */
+/*   Updated: 2022/11/10 16:43:21 by fvan-wij         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include "get_next_line.h"
 
-char *get_next_line(int fd)
+//TO DO
+//Create a function that reads #buffer_amount until \n is found
+//Store buffer in line
+//Use get_next_line to trim characters after \name
+//Return address of pointer to first char of the desired line
+
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 {
-	char 	*buffer;
-	char	*buffer2;
-	int		count;
+	size_t	i;
+
+	if (dstsize > 0)
+	{
+		i = 0;
+		while ((src[i] != '\0') && (i < dstsize - 1))
+		{
+			dst[i] = src[i];
+			i++;
+		}
+		dst[i] = '\0';
+	}
+	return (ft_strlen(src));
+}
+
+int	ft_strchr_index(const char *s, int c)
+{
 	int		i;
 
 	i = 0;
-	count = 50;
-	buffer = malloc(sizeof(char) * (count + 1));
-	buffer2 = malloc(sizeof(char) * (count + 1));
-	read(fd, buffer, count);
-	buffer[count + 1] = '\0';
-	while (buffer[i])
+	while (s[i] != '\0')
 	{
-		buffer2[i] = buffer[i];
-		if (buffer[i] == '\n')
-			break;
+		if (s[i] == (char)c)
+			return (i);
 		i++;
 	}
-	printf("Backslash index at: %d\n", i);
-	return (*&buffer2);
+	if (s[i] == (char)c)
+		return (i);
+	return (i);
 }
 
-int	main(int argc, char **argv)
+char	*filter_line(char *buffer)
 {
-	char *buf;
-	int fd;
-	if (argc == 2)
+	int	i;
+	char *line;
+
+	i = 0;
+	i = ft_strchr_index(buffer, '\n');
+	line = malloc(sizeof(char) * (i + 1));
+	ft_strlcpy(line, buffer, i);
+	return (*&line);
+}
+
+char	*read_btn(int fd, char *buffer)
+{
+	char	*btn;
+	int		i;
+
+	i = 0;
+	btn = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	while (!ft_strchr(buffer, '\n'))
 	{
-		fd = open(argv[1], O_RDONLY);
-		if (fd == -1)
-		{
-			write(1, "Failed to read file.\n", 22);
-			exit (1);
-		}
-		else
-		{
-			//printf("%s", get_next_line(fd));
-			buf = malloc(sizeof(char) * get_next_line(fd));
-			buf = get_next_line(fd);
-			close (fd);
-		}
+		read(fd, btn, BUFFER_SIZE);
+		buffer = ft_strjoin(buffer, btn);
+		i++;
 	}
+	return (buffer);
+}
+
+char	*second_line(char *buffer)
+{
+	int	i;
+	char *second_line;
+
+	i = 0;
+	i = ft_strchr_index(buffer, '\n');
+	second_line = malloc(sizeof(char) * (i + 1));
+	ft_strlcpy(second_line, buffer, i);
+	return (second_line);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*buffer;
+	char		*line;
+
+	buffer = read_btn(fd, buffer);
+	line = filter_line(buffer);
+	buffer = second_line(buffer);
+	// printf("Buffer = %s.\n\n", buffer);
+	return (line);
 }
