@@ -12,93 +12,116 @@
 
 #include "get_next_line.h"
 
-//TO DO
-//Create a function that reads #buffer_amount until \n is found
-//Store buffer in line
-//Use get_next_line to trim characters after \name
-//Return address of pointer to first char of the desired line
-
-size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
+char	*read_buffer(int fd, char *btn)
 {
-	size_t	i;
+	char	*temp;
+	int		bytes;
 
-	if (dstsize > 0)
+	temp = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	bytes = 1;
+	if (!temp)
+		return (NULL);
+	while ((!ft_strchr(temp, '\n') && bytes > 0))
 	{
-		i = 0;
-		while ((src[i] != '\0') && (i < dstsize - 1))
-		{
-			dst[i] = src[i];
-			i++;
-		}
-		dst[i] = '\0';
+		bytes = read(fd, temp, BUFFER_SIZE);
+		btn = ft_strjoin(btn, temp);
 	}
-	return (ft_strlen(src));
+	free(temp);
+	return (btn);
 }
 
-int	ft_strchr_index(const char *s, int c)
+char	*filter_tnl(char *btn)
 {
 	int		i;
+	int		nl_index;
+	char	*current_line;
 
 	i = 0;
-	while (s[i] != '\0')
+	nl_index = ft_strchr_index(btn, '\n');
+	current_line = ft_calloc(nl_index + 1, sizeof(char));
+	if (!current_line)
+		return (NULL);
+	current_line[nl_index + 1] = '\0';
+	while (i <= nl_index)
 	{
-		if (s[i] == (char)c)
-			return (i);
+		current_line[i] = btn[i];
 		i++;
 	}
-	if (s[i] == (char)c)
-		return (i);
-	return (i);
+	return (current_line);
 }
 
-char	*filter_line(char *buffer)
+char	*trim_tnl(char *btn)
 {
-	int	i;
-	char *line;
-
-	i = 0;
-	i = ft_strchr_index(buffer, '\n');
-	line = malloc(sizeof(char) * (i + 1));
-	ft_strlcpy(line, buffer, i);
-	return (*&line);
-}
-
-char	*read_btn(int fd, char *buffer)
-{
-	char	*btn;
 	int		i;
+	int		nl_index;
+	int		size;
+	char	*new_btn;
 
 	i = 0;
-	btn = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	while (!ft_strchr(buffer, '\n'))
+	nl_index = ft_strchr_index(btn, '\n');
+	size = ft_strlen(btn) - nl_index;
+	new_btn = ft_calloc(size, sizeof(char));
+	if (!new_btn)
+		return (NULL);
+	nl_index++;
+	while (btn[nl_index])
 	{
-		read(fd, btn, BUFFER_SIZE);
-		buffer = ft_strjoin(buffer, btn);
+		new_btn[i] = btn[nl_index];
 		i++;
+		nl_index++;
 	}
-	return (buffer);
-}
-
-char	*second_line(char *buffer)
-{
-	int	i;
-	char *second_line;
-
-	i = 0;
-	i = ft_strchr_index(buffer, '\n');
-	second_line = malloc(sizeof(char) * (i + 1));
-	ft_strlcpy(second_line, buffer, i);
-	return (second_line);
+	free(btn);
+	return (new_btn);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer;
-	char		*line;
+	static char *btn; //= "Buffer till newline"
+	char		*current_line;
 
-	buffer = read_btn(fd, buffer);
-	line = filter_line(buffer);
-	buffer = second_line(buffer);
-	// printf("Buffer = %s.\n\n", buffer);
-	return (line);
+	if (!btn)
+	{
+		btn = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+		if (!btn)
+			return (NULL);
+	}
+	//Read buffer up to BUFFER_SIZE till \n is found in buffer, concatenate every iteration and return buffer_till_newline (btn);
+	btn = read_buffer(fd, btn);
+	//Filter characters before the first occurrence of \n in current_line;
+	current_line = filter_tnl(btn);
+	//Store trimmed characters after first occurence of \n in btn;
+	btn	= trim_tnl(btn);
+	return (current_line);
+}
+
+int	main(int argc, char *argv[])
+{
+	int fd;
+	int	i;
+	int	n_of_lines;
+
+	i = 0;
+	n_of_lines = 0;
+	fd = open(argv[1], O_RDONLY);
+	if (argc == 3)
+	{
+		if (fd == -1)
+		{
+			write(1, "Failed to read file.\n", 22);
+			exit (1);
+		}
+		else
+		{
+			n_of_lines = ft_atoi(argv[2]);
+			while (i < n_of_lines)
+			{
+			printf("\nget_next_line[%d] = %s", i, get_next_line(fd));
+			printf("\n------------------------------------\n");
+			i++;
+			}
+		}
+	}
+	else
+		write(1, "\nError: program needs 3 arguments ('executable | input | n of lines').\n\n", 72);
+	close (fd);
 }
