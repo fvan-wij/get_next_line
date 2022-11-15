@@ -6,7 +6,7 @@
 #    By: fvan-wij <fvan-wij@student.codam.nl>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/01 18:08:39 by fvan-wij          #+#    #+#              #
-#    Updated: 2022/11/12 16:19:08 by fvan-wij         ###   ########.fr        #
+#    Updated: 2022/11/13 21:04:33 by fvan-wij         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,12 +15,7 @@ NAME		:=	get_next_line.a
 HEADER		:=	get_next_line.h
 
 SRC			:=	get_next_line.c \
-			ft_strchr.c \
-			ft_strjoin.c \
-			ft_strlen.c \
-			ft_strchr_index.c\
-			ft_strlcpy.c \
-			ft_calloc.c \
+			get_next_line_utils.c \
 			ft_atoi.c
 
 OBJ 		:= $(SRC:.c=.o)
@@ -66,6 +61,12 @@ fclean: 	clean
 			@$(RMV) $(NAME)
 
 re: 		fclean $(NAME)
+
+test:		fclean $(NAME)
+			$(CC) $(CFLAGS) get_next_line.c $(NAME)
+
+test-sanitize:		fclean $(NAME)
+			$(CC) -Wall -g3 -fsanitize=address get_next_line.c $(NAME)
 
 .PHONY:		all clean fclean re
 

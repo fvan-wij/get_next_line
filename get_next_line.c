@@ -12,6 +12,20 @@
 
 #include "get_next_line.h"
 
+int	ft_strchr_index(const char *s, int c)
+{
+	int		i;
+
+	i = 0;
+	while (s[i] != '\0')
+	{
+		if (s[i] == (char)c)
+			break ;
+		i++;
+	}
+	return (i);
+}
+
 char	*read_buffer(int fd, char *btn)
 {
 	char	*temp;
@@ -24,7 +38,8 @@ char	*read_buffer(int fd, char *btn)
 	while ((!ft_strchr(temp, '\n') && bytes > 0))
 	{
 		bytes = read(fd, temp, BUFFER_SIZE);
-		btn = ft_strjoin(btn, temp);
+		if (bytes != 0)
+			btn = ft_strjoin(btn, temp);
 	}
 	free(temp);
 	return (btn);
@@ -38,10 +53,11 @@ char	*filter_tnl(char *btn)
 
 	i = 0;
 	nl_index = ft_strchr_index(btn, '\n');
-	current_line = ft_calloc(nl_index + 1, sizeof(char));
+	if (nl_index == 0)
+		return (NULL);
+	current_line = ft_calloc(nl_index, sizeof(char));
 	if (!current_line)
 		return (NULL);
-	current_line[nl_index + 1] = '\0';
 	while (i <= nl_index)
 	{
 		current_line[i] = btn[i];
@@ -63,10 +79,9 @@ char	*trim_tnl(char *btn)
 	new_btn = ft_calloc(size, sizeof(char));
 	if (!new_btn)
 		return (NULL);
-	nl_index++;
 	while (btn[nl_index])
 	{
-		new_btn[i] = btn[nl_index];
+		new_btn[i] = btn[nl_index + 1];
 		i++;
 		nl_index++;
 	}
@@ -87,7 +102,7 @@ char	*get_next_line(int fd)
 	}
 	//Read buffer up to BUFFER_SIZE till \n is found in buffer, concatenate every iteration and return buffer_till_newline (btn);
 	btn = read_buffer(fd, btn);
-	//Filter characters before the first occurrence of \n in current_line;
+	//Filter characters before the first occurrence of \n and store in current_line;
 	current_line = filter_tnl(btn);
 	//Store trimmed characters after first occurence of \n in btn;
 	btn	= trim_tnl(btn);
