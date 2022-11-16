@@ -34,6 +34,8 @@ size_t	ft_strlen(const char *s)
 	size_t	i;
 
 	i = 0;
+	if (!s)
+		return (0);
 	while (s[i] != '\0')
 		i++;
 	return (i);
@@ -44,6 +46,8 @@ char	*ft_strchr(const char *s, int c)
 	int		i;
 
 	i = 0;
+	if (!s)
+		return (NULL);
 	while (s[i] != '\0')
 	{
 		if (s[i] == (char)c)
@@ -60,6 +64,8 @@ static size_t	ft_strcpy(char *dst, const char *src)
 	size_t	i;
 
 	i = 0;
+	if (!src)
+		return (0);
 	while (src[i] != '\0')
 	{
 		dst[i] = src[i];
@@ -84,4 +90,29 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		ft_strcpy(strjoin + ft_strlen(s1), s2);
 		return (strjoin);
 	}
+}
+
+char	*ft_substr(char *s, unsigned int start, size_t len)
+{
+	char			*substr;
+	size_t			i;
+	size_t			j;
+
+	i = 0;
+	j = 0;
+	if (start > ft_strlen(s))
+		len = 0;
+	else if (ft_strlen(s + start) < len)
+		len = ft_strlen(s + start);
+	substr = ft_calloc(len + 1, sizeof(char));
+	if (substr == NULL)
+		return (0);
+	while (j < len && s[i] != '\0')
+	{
+		substr[j] = s[i + start];
+		i++;
+		j++;
+	}
+	substr[j] = '\0';
+	return (substr);
 }
