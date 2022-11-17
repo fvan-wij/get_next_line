@@ -25,8 +25,8 @@ int	ft_strchr_index(const char *s, int c)
 			break ;
 		i++;
 	}
-	if (s[i] == '\0')
-		return (i - 1);
+	// if (s[i] == '\0')
+	// 	return (i - 1);
 	return (i);
 }
 
@@ -53,11 +53,9 @@ char	*read_buffer(int fd, char *btn)
 
 char	*filter_tnl(char *btn)
 {
-	int		i;
 	int		nl_index;
 	char	*current_line;
 
-	i = 0;
 	nl_index = ft_strchr_index(btn, '\n');
 	current_line = ft_calloc(nl_index + 1, sizeof(char));
 	current_line = ft_substr(btn, 0, nl_index + 1);
@@ -71,10 +69,18 @@ char	*trim_tnl(char *btn)
 	char	*new_btn;
 
 	nl_index = ft_strchr_index(btn, '\n');
-	size = ft_strlen(btn + nl_index);
+	size = ft_strlen(btn + nl_index - 1);
+	if (size > 0)
+	{
 	new_btn = ft_calloc(size, sizeof(char));
 	new_btn = ft_substr(btn, nl_index + 1, size);
 	free(btn);
+	}
+	else
+	{
+		free(btn);
+		return (NULL);
+	}
 	return (new_btn);
 }
 
@@ -83,21 +89,27 @@ char	*get_next_line(int fd)
 	static char	*btn;
 	char		*current_line;
 
-	btn = read_buffer(fd, btn);
-	if (!btn)
-		return (NULL);
+	if ((btn = read_buffer(fd, btn)))
+	{
 	current_line = filter_tnl(btn);
 	btn = trim_tnl(btn);
+	}
+	else
+	{
+		free(btn);
+		return (NULL);
+	}
+	printf("Current_line: %s\n", current_line);
 	return (current_line);
 }
 
 // int	main()
 // {
 // 	int fd;
-// 	int	i;
+// 	//int	i;
 // 	//int	n_of_lines;
 
-// 	i = 0;
+// 	//i = 0;
 // 	//n_of_lines = 0;
 // 	fd = open("1char.txt", O_RDONLY);
 
@@ -111,11 +123,11 @@ char	*get_next_line(int fd)
 // 		// else
 // 		// {
 // 			// n_of_lines = ft_atoi(argv[2]);
-// 			while (i < 10)
+// 			while (get_next_line(fd))
 // 			{
-// 				printf("\nget_next_line[%d] = %s", i, get_next_line(fd));
-// 				printf("\n------------------------------------\n");
-// 				i++;
+// 				// printf("\nget_next_line[%d] = %s", i, get_next_line(fd));
+// 				// printf("\n------------------------------------\n");
+// 				// i++;
 // 			}
 // 	// 	}
 // 	// }
