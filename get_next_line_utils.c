@@ -75,15 +75,19 @@ static size_t	ft_strcpy(char *dst, const char *src)
 	return (ft_strlen(src));
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	int		len;
 	char	*strjoin;
 
 	len = (ft_strlen(s1) + ft_strlen(s2)) + 1;
-	strjoin = malloc(len * sizeof(char));
+	strjoin = ft_calloc(len, sizeof(char));
 	if (!strjoin)
+	{
+		free(s1);
+		free(s2);
 		return (0);
+	}
 	else
 	{
 		ft_strcpy(strjoin, s1);

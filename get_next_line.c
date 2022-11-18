@@ -22,84 +22,59 @@ int	ft_strchr_index(const char *s, int c)
 	while (s[i] != '\0')
 	{
 		if (s[i] == (char)c)
-			break ;
+			return (i);
 		i++;
 	}
-	// if (s[i] == '\0')
-	// 	return (i - 1);
+	if (s[i] == '\0')
+		return (i - 1);
 	return (i);
 }
 
-char	*read_buffer(int fd, char *btn)
+char	*read_buffer(int fd, char *current_line)
 {
 	char	temp[BUFFER_SIZE + 1];
 	int		bytes;
-
-	if (fd == -1)
-		return (NULL);
-	//temp = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	
 	bytes = 1;
 	while ((!ft_strchr(temp, '\n') && bytes > 0))
 	{
 		bytes = read(fd, temp, BUFFER_SIZE);
 		temp[bytes] = '\0';
-		if (bytes == 0 && !btn)
+		if (bytes > 0)
+			current_line = ft_strjoin(current_line, temp);
+		if (!current_line && bytes <= 0)
 			return (NULL);
-		if (bytes != 0)
-			btn = ft_strjoin(btn, temp);
 	}
-	return (btn);
-}
-
-char	*filter_tnl(char *btn)
-{
-	int		nl_index;
-	char	*current_line;
-
-	nl_index = ft_strchr_index(btn, '\n');
-	current_line = ft_calloc(nl_index + 1, sizeof(char));
-	current_line = ft_substr(btn, 0, nl_index + 1);
 	return (current_line);
-}
-
-char	*trim_tnl(char *btn)
-{
-	int		nl_index;
-	int		size;
-	char	*new_btn;
-
-	nl_index = ft_strchr_index(btn, '\n');
-	size = ft_strlen(btn + nl_index - 1);
-	if (size > 0)
-	{
-	new_btn = ft_calloc(size, sizeof(char));
-	new_btn = ft_substr(btn, nl_index + 1, size);
-	free(btn);
-	}
-	else
-	{
-		free(btn);
-		return (NULL);
-	}
-	return (new_btn);
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*btn;
-	char		*current_line;
+	char		*current_line = NULL;
+	int			nl_index;
 
-	if ((btn = read_buffer(fd, btn)))
+	if (!(current_line = read_buffer(fd, current_line))) 
 	{
-	current_line = filter_tnl(btn);
-	btn = trim_tnl(btn);
-	}
-	else
-	{
+		free(current_line);
 		free(btn);
 		return (NULL);
 	}
-	printf("Current_line: %s\n", current_line);
+	if (!btn) //On first iteration, when btn is empty, check for nl_index in current_line;
+	{
+		nl_index = ft_strchr_index(current_line, '\n');
+	}
+	else //Else if btn contains words after \n, append with current_line and find nl_index in concatenated current_line;
+	{
+		current_line = ft_strjoin(btn, current_line);
+		nl_index = ft_strchr_index(current_line, '\n');
+	}
+	btn = ft_substr(current_line, nl_index + 1, ft_strlen(current_line + nl_index)); //Store everything after \n in btn;
+	if (btn[0] == '\0')
+		free(btn);
+	current_line = ft_substr(current_line, 0, nl_index + 1); //Trim everything
+
+	//printf("\nGNL output = %s", current_line);
 	return (current_line);
 }
 
@@ -107,32 +82,14 @@ char	*get_next_line(int fd)
 // {
 // 	int fd;
 // 	//int	i;
-// 	//int	n_of_lines;
 
 // 	//i = 0;
-// 	//n_of_lines = 0;
-// 	fd = open("1char.txt", O_RDONLY);
-
-// 	// if (argc == 3)
-// 	// {
-// 	// 	if (fd == -1)
-// 	// 	{
-// 	// 		write(1, "Failed to read file.\n", 22);
-// 	// 		exit (1);
-// 	// 	}
-// 		// else
-// 		// {
-// 			// n_of_lines = ft_atoi(argv[2]);
-// 			while (get_next_line(fd))
-// 			{
-// 				// printf("\nget_next_line[%d] = %s", i, get_next_line(fd));
-// 				// printf("\n------------------------------------\n");
-// 				// i++;
-// 			}
-// 	// 	}
-// 	// }
-// 	// else
-// 	// 	write(1, "\nError: program needs 3 arguments ('executable | input | n of lines').\n\n", 72);
-// 	// close (fd);
+// 	fd = open("test.txt", O_RDONLY);
+// 	while (get_next_line(fd))
+// 	{
+// 		// printf("\nget_next_line[%d] = %s", i, get_next_line(fd));
+// 		// printf("\n------------------------------------\n");
+// 		// i++;
+// 	}
 // 	close(fd);
 // }
