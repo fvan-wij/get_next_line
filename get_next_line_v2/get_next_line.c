@@ -19,10 +19,15 @@ int	ft_strchr_index(const char *s, int c)
 	i = 0;
 	if (!s)
 		return (0);
+	if (s[i] == (char)c)
+		return (1);
 	while (s[i] != '\0')
 	{
 		if (s[i] == (char)c)
+		{
+			i++;
 			return (i);
+		}
 		i++;
 	}
 	return (0);
@@ -34,40 +39,50 @@ static char	*copy_buffer(char *buffer, char *line)
 	char	*strjoin;
 	int		nl_index;
 
-	//nl_index = ft_strchr_index(buffer, '\n');
 	len = (ft_strlen(buffer) + ft_strlen(line)) + 1;
 	strjoin = ft_calloc(len, sizeof(char));
 	if ((nl_index = ft_strchr_index(buffer, '\n')))
 	{
-		ft_strlcpy(strjoin, buffer, nl_index + 2);
-		ft_strcpy(strjoin + nl_index + 2, line);
+		len = (ft_strlen(line) + nl_index);
+		strjoin = ft_calloc(len, sizeof(char));
+		ft_strcpy(strjoin, line);
+		ft_strlcpy(strjoin + ft_strlen(strjoin), buffer, nl_index + 1);
+		return (free(line), strjoin);
+	}
+	if ((nl_index = ft_strchr_index(buffer, '\n')) && !ft_strchr_index(line, '\n'))
+	{
+			ft_strcpy(strjoin, line);
+			ft_strlcpy(strjoin + ft_strlen(strjoin), buffer, nl_index + 2);
+			return (free(line), strjoin);
 	}
 	else
 	{
 		ft_strcpy(strjoin, line);
 		ft_strcpy(strjoin + ft_strlen(strjoin), buffer);
 	}
-	return (strjoin);
+	return (free(line), strjoin);
 }
 
 char	*get_next_line(int fd)
 {
 	static char buffer[BUFFER_SIZE + 1];
-	char		*line = NULL;
+	char		*line;
 	int			bytes;
 	int			nl_index;
 
 	bytes = 1;
+	line = NULL;
 	if ((buffer[0] != '\0') && (nl_index = ft_strchr_index(buffer, '\n')))
 	{
-		line = ft_substr(buffer, nl_index + 1, ft_strlen(buffer + nl_index));
+		line = ft_substr(buffer, nl_index, ft_strlen(buffer + nl_index));
 		buffer[0] = '\0';
 	}
-	while (!(ft_strchr(buffer, '\n') && bytes > 0))
+	while (!(ft_strchr(buffer, '\n')) && bytes > 0)
 	{
 		bytes = read(fd, buffer, BUFFER_SIZE);
 		buffer[bytes] = '\0';
-		line = copy_buffer(buffer, line);
+		if (bytes != 0)
+			line = copy_buffer(buffer, line);
 	}
 	return (line);
 }
@@ -83,6 +98,8 @@ int	main()
 	{
 		printf("\nget_next_line[%d] = %s", i, get_next_line(fd));
 		printf("\n------------------------------------\n");
+		// if (get_next_line(fd) == NULL)
+		// 	break ;
 		i++;
 	}
 	close(fd);

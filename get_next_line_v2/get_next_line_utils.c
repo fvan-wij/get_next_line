@@ -116,3 +116,24 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 	substr[j] = '\0';
 	return (substr);
 }
+
+char	*ft_strjoin(char *s1, char *s2)
+{
+	int		len;
+	char	*strjoin;
+
+	len = (ft_strlen(s1) + ft_strlen(s2)) + 1;
+	strjoin = ft_calloc(len, sizeof(char));
+	if (!strjoin)
+	{
+		free(s1);
+		free(s2);
+		return (0);
+	}
+	else
+	{
+		ft_strcpy(strjoin, s1);
+		ft_strcpy(strjoin + ft_strlen(s1), s2);
+		return (strjoin);
+	}
+}

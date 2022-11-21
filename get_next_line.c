@@ -25,8 +25,8 @@ int	ft_strchr_index(const char *s, int c)
 			return (i);
 		i++;
 	}
-	if (s[i] == '\0')
-		return (i - 1);
+	// if (s[i] == '\0')
+	// 	return (i - 1);
 	return (i);
 }
 
@@ -51,9 +51,12 @@ char	*read_buffer(int fd, char *current_line)
 char	*get_next_line(int fd)
 {
 	static char	*btn;
-	char		*current_line = NULL;
+	char		*current_line;
 	int			nl_index;
 
+	current_line = NULL;
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (0);
 	if (!(current_line = read_buffer(fd, current_line))) 
 	{
 		free(current_line);
@@ -61,9 +64,7 @@ char	*get_next_line(int fd)
 		return (NULL);
 	}
 	if (!btn) //On first iteration, when btn is empty, check for nl_index in current_line;
-	{
 		nl_index = ft_strchr_index(current_line, '\n');
-	}
 	else //Else if btn contains words after \n, append with current_line and find nl_index in concatenated current_line;
 	{
 		current_line = ft_strjoin(btn, current_line);
@@ -73,8 +74,6 @@ char	*get_next_line(int fd)
 	if (btn[0] == '\0')
 		free(btn);
 	current_line = ft_substr(current_line, 0, nl_index + 1); //Trim everything
-
-	//printf("\nGNL output = %s", current_line);
 	return (current_line);
 }
 
