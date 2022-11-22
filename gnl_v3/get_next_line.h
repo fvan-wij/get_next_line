@@ -6,7 +6,7 @@
 /*   By: fvan-wij <fvan-wij@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/10 16:39:45 by fvan-wij          #+#    #+#             */
-/*   Updated: 2022/11/21 19:01:04 by fvan-wij         ###   ########.fr       */
+/*   Updated: 2022/11/22 14:42:24 by fvan-wij         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 # include <stdio.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 10000
+#  define BUFFER_SIZE 42
 # endif
 
 char	*get_next_line(int fd);
@@ -33,5 +33,6 @@ size_t	ft_strlen(const char *s);
 size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
 void	*ft_calloc(size_t count, size_t size);
 char	*ft_substr(char *s, unsigned int start, size_t len);
+char	*ft_substr_and_free(char *s, unsigned int start, size_t len);
 
 #endif

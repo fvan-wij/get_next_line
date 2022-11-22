@@ -41,14 +41,26 @@ char	*read_buffer(int fd, char *btn)
 	{
 		bytes = read(fd, temp, BUFFER_SIZE);
 		temp[bytes] = '\0';
-		if (bytes <= 0 && !btn)
+		// if (bytes <= 0 && !btn)
+		// {
+		// 	free(btn);
+		// 	free(temp);
+		// 	return (NULL);
+		// }
+		// if (bytes == -1 && btn)
+		// {
+		// 	free(btn);
+		// 	free(temp);
+		// 	return (NULL);
+		// }
+		// else if (bytes == 0 && btn[0])
+		// 	break ;
+		if (bytes < 0)
 		{
-			free(btn);
 			free(temp);
 			return (NULL);
 		}
-		if (bytes != 0)
-			btn = ft_strjoin(btn, temp);
+		btn = ft_strjoin(btn, temp);
 	}
 	free(temp);
 	return (btn);
@@ -59,10 +71,10 @@ char	*filter_tnl(char *btn)
 	int		nl_index;
 	char	*current_line;
 
-	if (!(nl_index = ft_strchr_index(btn, '\n')))
+	if (!(ft_strchr(btn, '\n')))
 		return (btn);
-	current_line = ft_calloc(nl_index + 2, sizeof(char));
-	current_line = ft_substr(btn, 0, nl_index + 2);
+	nl_index = ft_strchr_index(btn, '\n');
+	current_line = ft_substr(btn, 0, nl_index + 1);
 	return (current_line);
 }
 
@@ -72,12 +84,15 @@ char	*trim_tnl(char *btn)
 	int		size;
 	char	*new_btn;
 
-	if (!(nl_index = ft_strchr_index(btn, '\n')))
-		return (NULL);
-	size = (ft_strlen(btn) - nl_index + 1);
-	new_btn = ft_calloc(size, sizeof(char));
-	new_btn = ft_substr(btn, nl_index + 1, size);
-	free(btn);
+	// if (!(nl_index = ft_strchr_index(btn, '\n')))
+	// 	return (NULL);
+	if (!(ft_strchr(btn, '\n')))
+		return (btn);
+	nl_index = ft_strchr_index(btn, '\n');
+	size = (ft_strlen(btn) - (nl_index + 1));
+	//new_btn = ft_calloc(size, sizeof(char));
+	new_btn = ft_substr_and_free(btn, nl_index + 1, size);
+	//free(btn);
 	return (new_btn);
 }
 
@@ -85,55 +100,38 @@ char	*get_next_line(int fd)
 {
 	static char	*btn;
 	char		*current_line;
-	static int	lines_read;
+	//static int	lines_read;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE < 0)
 		return (NULL);
-	if ((btn = read_buffer(fd, btn)))
-	{
+	// if ((btn = read_buffer(fd, btn)))
+	// {
+	btn = read_buffer(fd, btn);
+	if (btn == NULL)
+		return (NULL);
 	current_line = filter_tnl(btn);
 	btn = trim_tnl(btn);
-	}
-	else
-	{
-		free(btn);
-		return (NULL);
-	}
-	lines_read++;
-	printf("Line[%d]: %s\n", lines_read, current_line);
+	// }
+	// else
+	// {
+	// 	free(btn);
+	// 	return (NULL);
+	// }
+	// lines_read++;
+	// printf("Line[%d]: %s\n", lines_read, current_line);
 	return (current_line);
 }
 
 int	main()
 {
 	int fd;
-	//int	i;
-	//int	n_of_lines;
+	int	i;
 
-	//i = 0;
-	//n_of_lines = 0;
-	fd = open("variable_nls.txt", O_RDONLY);
-
-	// if (argc == 3)
-	// {
-	// 	if (fd == -1)
-	// 	{
-	// 		write(1, "Failed to read file.\n", 22);
-	// 		exit (1);
-	// 	}
-		// else
-		// {
-			// n_of_lines = ft_atoi(argv[2]);
-			while (get_next_line(fd))
-			{
-				// printf("\nget_next_line[%d] = %s", i, get_next_line(fd));
-				// printf("\n------------------------------------\n");
-				// i++;
-			}
-	// 	}
-	// }
-	// else
-	// 	write(1, "\nError: program needs 3 arguments ('executable | input | n of lines').\n\n", 72);
-	// close (fd);
+	i = 0;
+	fd = open("empty.txt", O_RDONLY);
+	while (get_next_line(fd))
+	{
+		i++;
+	}
 	close(fd);
 }
