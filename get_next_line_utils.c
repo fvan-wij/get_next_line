@@ -72,7 +72,7 @@ char	*ft_substr(char *s, unsigned int start, size_t len)
 		len = ft_strlen(s + start);
 	substr = malloc(len + 1 * sizeof(char));
 	if (substr == NULL)
-		return (0);
+		return (NULL);
 	while (j < len && s[i] != '\0')
 	{
 		substr[j] = s[i + start];
@@ -91,7 +91,7 @@ char	*ft_strjoin_and_free(char *s1, char *s2)
 	len = (ft_strlen(s1) + ft_strlen(s2)) + 1;
 	strjoin = malloc(len * sizeof(char));
 	if (!strjoin)
-		return (0);
+		return (free(s1), NULL);
 	ft_strcpy(strjoin, s1);
 	ft_strcpy(strjoin + ft_strlen(s1), s2);
 	free(s1);

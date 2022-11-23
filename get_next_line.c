@@ -37,10 +37,7 @@ char	*read_buffer(int fd, char *btnl)
 	{
 		bytes = read(fd, temp, BUFFER_SIZE);
 		if (bytes < 0)
-		{
-			free(temp);
-			return (NULL);
-		}
+			return (free(temp), free(btnl), NULL);
 		temp[bytes] = '\0';
 		btnl = ft_strjoin_and_free(btnl, temp);
 	}
@@ -57,19 +54,18 @@ char	*filter_tnl(char *btnl)
 		return (NULL);
 	nl_index = ft_strchr_index(btnl, '\n');
 	current_line = ft_substr(btnl, 0, nl_index + 1);
+	if (!current_line)
+		free(btnl);
 	return (current_line);
 }
 
-char	*trim_anl(char *btnl)
+char	*trim_tnl(char *btnl)
 {
 	int		nl_index;
 	char	*new_btnl;
 
 	if (!(ft_strchr(btnl, '\n')))
-	{
-		free(btnl);
-		return (NULL);
-	}
+		return (free(btnl), NULL);
 	nl_index = ft_strchr_index(btnl, '\n');
 	new_btnl = ft_substr(btnl, nl_index + 1, ft_strlen(btnl) + nl_index + 1);
 	free(btnl);
@@ -87,25 +83,25 @@ char	*get_next_line(int fd)
 	if (btnl == NULL)
 		return (NULL);
 	current_line = filter_tnl(btnl);
-	btnl = trim_anl(btnl);
+	btnl = trim_tnl(btnl);
 	return (current_line);
 }
 
-int	main()
-{
-	int 	fd;
-	int		i;
-	char	*line;
+// int	main()
+// {
+// 	int 	fd;
+// 	int		i;
+// 	char	*line;
 
-	i = 0;
-	fd = open("read_error.txt", O_RDONLY);
-	while (1)
-	{
-		line = get_next_line(fd);
-		printf("Line[%d]: %s\n", i, line);
-		if (line == NULL)
-				break ;
-		i++;
-	}
-	close(fd);
-}
+// 	i = 0;
+// 	fd = open("read_error.txt", O_RDONLY);
+// 	while (1)
+// 	{
+// 		line = get_next_line(fd);
+// 		printf("Line[%d]: %s\n", i, line);
+// 		if (line == NULL)
+// 				break ;
+// 		i++;
+// 	}
+// 	close(fd);
+// }
