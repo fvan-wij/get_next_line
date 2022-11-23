@@ -87,21 +87,29 @@ char	*get_next_line(int fd)
 	return (current_line);
 }
 
-// int	main()
-// {
-// 	int 	fd;
-// 	int		i;
-// 	char	*line;
+int	main()
+{
+	int 	fd_a;
+	int		fd_b;
+	int		i;
+	int		j;
+	char	*line_a;
+	char	*line_b;
 
-// 	i = 0;
-// 	fd = open("read_error.txt", O_RDONLY);
-// 	while (1)
-// 	{
-// 		line = get_next_line(fd);
-// 		printf("Line[%d]: %s\n", i, line);
-// 		if (line == NULL)
-// 				break ;
-// 		i++;
-// 	}
-// 	close(fd);
-// }
+	i = 0;
+	fd_a = open("read_error.txt", O_RDONLY);
+	fd_b = open("test.txt", O_RDONLY);
+	while (1)
+	{
+		line_a = get_next_line(fd_a);
+		printf("Line[%d]: %s\n", i, line_a);
+		line_b = get_next_line(fd_b);
+		printf("Line[%d]: %s\n", j, line_b);
+		if (line_a == NULL || line_b == NULL)
+			break ;
+		i++;
+		j++;
+	}
+	close(fd_a);
+	close(fd_b);
+}
